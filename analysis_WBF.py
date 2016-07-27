@@ -63,12 +63,15 @@ print "The tree have "+str(numberOfEntries)+" events"
 # Get pointers to branches used in this analysis
 branchEvent = treeReader.UseBranch("Event")
 branchJet = treeReader.UseBranch("Jet")
-branchFatJet = treeReader.UseBranch("FatJet")
+branchFatJet = treeReader.UseBranch("Jet")
 branchParticle = treeReader.UseBranch("Particle")
+branchPhoton = treeReader.UseBranch("Photon")
 #############################################################
 # Declare histograms
 #############################################################
 # genvariables
+histNoOfPhoton = ROOT.TH1F("No of photons", "No of photons", 10, 0, 10)
+
 histH1PT = ROOT.TH1F("H1_pt", "Leading H Gen P_{T}", 100, 0.0, 3000.0)
 histH1Mass = ROOT.TH1F("H1_mass", "Leading Gen M_{H}", 100, 40.0, 140.0)
 histH2PT = ROOT.TH1F("H2_pt", "Sub-leading H Gen P_{T}", 100, 0.0, 3000.0)
@@ -97,7 +100,9 @@ histH2RecoMass = ROOT.TH1F("H2_mass_Reco", "Sub-leading  M_{H}", 100, 40.0, 1400
 # Loop over all events
 #############################################################
 negative=0
+
 for entry in range(0, numberOfEntries):
+    no_of_photons =0
     # Load selected branches with data from specified event
     treeReader.ReadEntry(entry)
     weight = branchEvent.At(0).Weight
@@ -117,11 +122,15 @@ for entry in range(0, numberOfEntries):
       statusT = 62 #62
       statusGenJ = 62
     #print branchParticle.GetEntries()
+    for part in range(0, branchPhoton.GetEntries()):
+       no_of_photons = no_of_photons +1
+    print "no of phtons:", no_of_photons
+    histNoOfPhoton.Fill(no_of_photons)
     for part in range(0, branchParticle.GetEntries()):
        genparticle =  branchParticle.At(part)
        pdgCode = genparticle.PID
        IsPU = genparticle.IsPU
-       status = genparticle.Status     
+       status = genparticle.Status 
        # check if it is the correct status (for QQ the last 25 is 52 and the last topone 62)
        #print " pdgid "+ str(pdgCode)+" status "+str(status)
        if(IsPU == 0 and (pdgCode == 25) and status==statusH ): 
@@ -130,6 +139,7 @@ for entry in range(0, numberOfEntries):
        if (IsPU == 0 and (abs(pdgCode) > 600000) and status==statusT ): 
           Topone.append(genparticle)
           #print " pdgid "+ str(pdgCode)+" status "+str(status)
+    
     if (len(Higgses) ==2) :
        # sort by pt = weird!
        if (Higgses[1].PT > Higgses[0].PT): 
@@ -189,8 +199,8 @@ for entry in range(0, numberOfEntries):
         if ( jet.Tau[2] > Tau21cut and JMass > PrunMass2 ) : RecoFatJets2.append(dumb)
         if (part==0) : 
             histFatJ1Mass.Fill(JMass) 
-            histFatJ1Tau2.Fill(jet.Tau[2]/jet.Tau[1])
-            histFatJ1Tau3.Fill(jet.Tau[3]/jet.Tau[1])
+            histFatJ1Tau2.Fill(0)
+            histFatJ1Tau3.Fill(0)
     histNFatJets.Fill(len(RecoFatJets2))
     ########################################################
     # Algoritm for categorization - add the mass selections
@@ -269,6 +279,7 @@ for entry in range(0, numberOfEntries):
 print "VLQTag2 VLQTag1 HTag2 HTag1 HTag0 Neg"
 print str(VLQTag2)+" "+str(VLQTag1)+" "+str(HTag2)+" "+str(HTag1)+" "+str(HTag0)+" "+str(negative)
 print str(VLQTag2truth)+" "+str(VLQTag1truth)+" "+str(HTag2truth)+" "+str(HTag1truth)+" "+str(HTag0truth)+" "+str(negative)
+
 #######################
 # save histos as image - test
 #####################
@@ -280,7 +291,8 @@ c1.Clear()
 #######################
 # save histos as root file - to superimpose
 #####################
-f = ROOT.TFile("histos_"+str(inputFile), 'RECREATE')
+f = ROOT.TFile("histos_new.root", 'RECREATE')
+histNoOfPhoton.Write()
 histH1PT.Write()
 histH2PT.Write()
 histH1Mass.Write()
