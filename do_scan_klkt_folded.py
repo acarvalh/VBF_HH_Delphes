@@ -25,21 +25,21 @@ if exp =="CMS" : nev = 6
 
 if ("-CompTrip" in options.name) :
    # sinbeta
-   par1min = 0
-   par1max = 56
+   par1min = 1
+   par1max = 500
    par1step = 5
    # m = 21 bunches
    par2min = 200
-   par2max = 1001
+   par2max = 3001
    par2step = 100
 if  ("-RealTrip" in options.name): 
    # sinbeta
-   par1min = 0
-   par1max = 101
+   par1min = 1
+   par1max = 500
    par1step = 5
    # m 
    par2min = 200
-   par2max = 1001
+   par2max = 3001
    par2step = 100
 if "-2HDM" in options.name : 
    # sinbeta
@@ -87,6 +87,25 @@ if "-VLLE" in options.name:
    par1min = 0
    par1max = 1
    par1step = 1
+if "-c2kt" in options.name:
+   # c2
+   par2min = -70
+   par2max = 70
+   par2step = 5
+   # one time 
+   par1min = 50
+   par1max = 26
+   par1step = 2
+if "-c2cg" in options.name:
+   # c2
+   par2min = -70
+   par2max = 70
+   par2step = 5
+   # one time 
+   par1min = 40
+   par1max = 40
+   par1step = 1
+
 
 else : print "model not implemented"
 
@@ -102,7 +121,7 @@ for  par1 in range(ini,ini+par1step,par1step) :
   print par1
   for par2 in range(par2min,par2max,par2step) : # 26
     if "-CompTrip" in options.name : 
-      sinbeta = float(par1/100.0) 
+      sinbeta = float(par1/1000.0) 
       m =  float(par2*1.0)  
       fpar1 = sinbeta
       fpar2 = m
@@ -112,7 +131,7 @@ for  par1 in range(ini,ini+par1step,par1step) :
       cg = 0
       c2g = 0
     if "-RealTrip" in options.name : 
-      sinbeta = float(par1/100.0) 
+      sinbeta = float(par1/1000.0) 
       m =  float(par2*1.0)  
       fpar1 = sinbeta
       fpar2 = m
@@ -171,8 +190,26 @@ for  par1 in range(ini,ini+par1step,par1step) :
       c2 = 0
       cg = 0
       c2g = 0
-
-
+    if "-c2kt" in options.name:
+      fpar2 = float(par2/10.0)
+      fpar1 = float(par1/10.0)
+      kt = fpar2
+      if "-c2kt_kl15" in options.name: kl = 15.0
+      elif "-c2kt_kl15" in options.name: kl = -15.0
+      else : kl = 1.0
+      c2 = fpar1
+      cg = 0
+      c2g = 0
+    if "-c2cg" in options.name:
+      fpar2 = float(par2/100.0)
+      fpar1 = float(par1/10.0)
+      kt = 1.0
+      if "-c2cg_kl15" in options.name: kl = 15.0
+      elif "-c2cg_kl15" in options.name: kl = -15.0
+      else : kl = 1.0
+      c2 = fpar1
+      cg = fpar2
+      c2g = -1*fpar2
 
     else : print "model not implemented"
     print (fpar1,fpar2," ", kl,kt,c2,cg,c2g)
