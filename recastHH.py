@@ -1,7 +1,4 @@
 import numpy as np
-import pandas as pd
-from sklearn.externals import joblib
-from Analysis.hh2bbbb_limit.data_utils import min_jet_var
 from ROOT import TFile, gROOT, gStyle , TLatex
 from rootpy.plotting import Hist, Hist2D
 from rootpy.plotting import Canvas, Legend , Pad 
@@ -12,7 +9,6 @@ import itertools as it
 from collections import defaultdict
 import scipy
 from copy import deepcopy
-from HHStatAnalysis.AnalyticalModels.NonResonantModel import NonResonantModel
 
 
 #! /usr/bin/env python
@@ -62,26 +58,15 @@ def main(kl,kt,c2,cg,c2g):
   # declare the 2D ===> should be global variable
   model = NonResonantModel()
   # obtaining BSM/SM coeficients
-  #dumb = model.ReadCoefficients("../data/coefficientsByBin_A1A3A7.txt") 
-  # hadd ATLAS_HH_GF-SUM_JHEP.root ATLAS_HH_GF-BM_1.root ATLAS_HH_GF-BM_2.root ATLAS_HH_GF-BM_3.root ATLAS_HH_GF-BM_4.root ATLAS_HH_GF-BM_5.root ATLAS_HH_GF-BM_6.root ATLAS_HH_GF-BM_7.root ATLAS_HH_GF-BM_8.root ATLAS_HH_GF-BM_9.root ATLAS_HH_GF-BM_10.root ATLAS_HH_GF-BM_11.root ATLAS_HH_GF-BM_12.root
-  # hadd CMS_HH_GF-SUM_JHEP.root CMS_HH_GF-BM_1.root CMS_HH_GF-BM_2.root CMS_HH_GF-BM_3.root CMS_HH_GF-BM_4.root CMS_HH_GF-BM_5.root CMS_HH_GF-BM_6.root CMS_HH_GF-BM_7.root CMS_HH_GF-BM_8.root CMS_HH_GF-BM_9.root CMS_HH_GF-BM_10.root CMS_HH_GF-BM_11.root CMS_HH_GF-BM_12.root
   dumb = model.ReadCoefficients("../../HHStatAnalysis/AnalyticalModels/data/coefficientsByBin_extended_3M_costHHSim_19-4.txt") 
-  #dumb = model.ReadCoefficients("../../HHStatAnalysis/AnalyticalModels/data/coefficientsByBin_extended_3M.txt") 
   counteventSM=0
   sumWeight=0
-  # now loop over events, calculate weights using the coeffitients and  plot histograms
-  # We sum SM + box + the benchmarks from 2-13 
-  # read the 2D histo referent to the sum of events
-  #fileHH=ROOT.TFile("../../../Analysis/Support/NonResonant/Hist2DSum_V0_SM_box.root")
-  #sumHAnalyticalBin = fileHH.Get("SumV0_AnalyticalBin")
-  neventsTH = model.functionGF(kl,kt,c2,cg,c2g,model.A13tev)*3.2*33.45*0.0026
+  #neventsTH = model.functionGF(kl,kt,c2,cg,c2g,model.A13tev)*3.2*33.45*0.0026
   #if neventsTH/0.4 <3 or neventsTH/0.001 >4 :
   #  print "not/too constrained" 
   #  return 
   # print "sum of weights calculated" , calcSumOfWeights 
   # read the events
-  pathBenchEvents="/afs/cern.ch/work/a/acarvalh/generateHH/asciiHH_tofit/GF_HH_BSM/" # events to reweight   
-  #file=ROOT.TFile("/afs/cern.ch/work/a/acarvalh/HH4b_HL-LHC/VBF_HH_Delphes/CMStrees/CMS_HH_GF-SUM_JHEP.root")
   file=ROOT.TFile("/afs/cern.ch/work/a/acarvalh/HH4b_HL-LHC/VBF_HH_Delphes/"+str(options.exp)+"trees/"+str(options.exp)+"_HH_GF-SUM_JHEP.root")
   tree=file.Get("TCVARS6")
   nev = tree.GetEntries()
@@ -119,7 +104,7 @@ def main(kl,kt,c2,cg,c2g):
       bmhh = sumHAnalyticalBin.GetXaxis().FindBin(mhh)
       bcost = sumHAnalyticalBin.GetYaxis().FindBin(abs(cost))
       effSumV0 = sumHAnalyticalBin.GetBinContent(bmhh,bcost)  # quantity of simulated events in that bin (without cuts)
-      weight = model.getScaleFactor(mhh , cost,kl, kt,c2,cg,c2g, effSumV0 , calcSumOfWeights)   # model.effSM,model.MHH,model.COSTS,model.A1,model.A3,model.A7, effSumV0) 
+      weight = model.getScaleFactor(mhh , cost,kl, kt,c2,cg,c2g, effSumV0 , calcSumOfWeights)
       #############################################
       # fill histograms to test
       #############################################
@@ -173,7 +158,6 @@ def main(kl,kt,c2,cg,c2g):
   # python recastHH.py --kl 1.0 --kt 1.0 --c2 1.0 --cg -0.6 --c2g 0.6
   for sam in range(0,13) :
     if kl == klJHEP[sam] and kt == ktJHEP[sam] and c2 ==c2JHEP[sam] and cg == cgJHEP[sam] and c2g ==c2gJHEP[sam] : 
-       #fileteste=ROOT.TFile("/afs/cern.ch/work/a/acarvalh/HH4b_HL-LHC/VBF_HH_Delphes/ATLAStrees/ATLAS_HH_GF-BM_"+str(sam)+".root")
        fileteste=ROOT.TFile("/afs/cern.ch/work/a/acarvalh/HH4b_HL-LHC/VBF_HH_Delphes/CMStrees/"+str(options.exp)+"_HH_GF-BM_"+str(sam)+".root")
        treeteste=fileteste.Get("TCVARS6")
        drawtest = sam
@@ -187,7 +171,6 @@ def main(kl,kt,c2,cg,c2g):
      CalcMhhRecoTest = np.zeros((nevtest))
      CalcMXRecoTest = np.zeros((nevtest))
      countevent=0
-     #print ("plain eff",nevtest , float(float(nevtest)/100000))
      print drawtest,"sum of weights",sumWeight," correction",calcSumOfWeights," plain eff ", float(float(nevtest)/100000)
      for iev in range(0,nevtest) :
        treeteste.GetEntry(iev)
