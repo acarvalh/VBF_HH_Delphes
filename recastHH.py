@@ -32,11 +32,11 @@ parser.add_option("--cg", type="float", dest="cgg", help="HGG contact", default=
 parser.add_option("--c2g", type="float", dest="c2gg", help="HHGG contact", default=0)
 parser.add_option("--doPlot", action='store_true', default=False, dest='doPlot', 
                     help='calculate the limit in the benchmark poin specified')
-parser.add_option("--out", type="string", dest="out", help="HHGG contact", default=0)
-parser.add_option("--exp", type="string", dest="exp", help="HHGG contact", default=0)
-parser.add_option("--bunch", type="int", dest="bunch", help="HHGG contact", default=0)
-parser.add_option("--par1", type="float", dest="par1", help="HHGG contact", default=-10000)
-parser.add_option("--par2", type="float", dest="par2", help="HHGG contact", default=-10000)
+parser.add_option("--out", type="string", dest="out", help="Theory = label for output", default=0)
+parser.add_option("--exp", type="string", dest="exp", help="Experiment", default=0)
+parser.add_option("--bunch", type="int", dest="bunch", help="one more label to the output file, if you need", default=0)
+parser.add_option("--par1", type="float", dest="par1", help="folded input parameter (only to appear on table output)", default=-10000)
+parser.add_option("--par2", type="float", dest="par2", help="folded input parameter (only to appear on table output)", default=-10000)
 
 (options, args) = parser.parse_args()
 print " "
