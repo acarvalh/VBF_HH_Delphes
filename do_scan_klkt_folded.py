@@ -25,41 +25,60 @@ if exp =="CMS" : nev = 6
 
 if ("-CompTrip" in options.name) :
    # sinbeta
-   par1min = 1
-   par1max = 500
-   par1step = 5
+   par1min = 0
+   par1max = 82
+   par1step = 2
    # m = 21 bunches
    par2min = 200
    par2max = 3001
    par2step = 100
 if  ("-RealTrip" in options.name): 
    # sinbeta
-   par1min = 1
-   par1max = 500
-   par1step = 5
+   par1min = 0
+   par1max = 82
+   par1step = 2
    # m 
    par2min = 200
    par2max = 3001
    par2step = 100
 if "-2HDM" in options.name : 
-   # sinbeta
-   par1min = -100
-   par1max = 101
-   par1step = 10
-   # Z6 
-   par2min = -20
-   par2max = 21
-   par2step = 2
-   mH = 300
+   if "ZOOM" in options.name : 
+     # mh 
+     par2min = 300
+     par2max = 2501
+     par2step = 100
+     # tanbeta --80 
+     par1min = 1
+     par1max = 405
+     par1step = 5
+   else :
+     # mh 
+     par2min = 300
+     par2max = 2501
+     par2step = 100
+     # tanbeta --20 
+     par1min = 1
+     par1max = 21
+     par1step = 1
 if "-SingExpZ2" in options.name:
-   # cosalpha
-   par1min = 60
-   par1max = 101
-   par1step = 5
-   # kl 
-   par2min = -80
-   par2max = 81
-   par2step = 10
+   if "ZOOM" in options.name : 
+     # cosalpha
+     par1min = 60
+     par1max = 101
+     par1step = 5
+     # kl 
+     par2min = -30
+     par2max = 31
+     par2step = 2
+   else :
+     # cosalpha
+     par1min = 60
+     par1max = 101
+     par1step = 5
+     # kl 
+     par2min = -80
+     par2max = 81
+     par2step = 10
 if "-SingSpoZ2" in options.name:
    # cosalpha
    par2min = 0
@@ -88,7 +107,7 @@ if "-VLLE" in options.name:
    par1max = 1
    par1step = 1
 if "-c2kt" in options.name:
-   # c2
+   # 
    par2min = -70
    par2max = 70
    par2step = 5
@@ -112,7 +131,7 @@ else : print "model not implemented"
 
 
 v = 246.
-lamSM = 0.012
+lamSM = 0.129098
 ini=int(par1min+options.bunch*(par1step))
 
 print (ini, par1min,par1max,par1step," ",par2min,par2max,par2step)
@@ -121,34 +140,36 @@ for  par1 in range(ini,ini+par1step,par1step) :
   print par1
   for par2 in range(par2min,par2max,par2step) : # 26
     if "-CompTrip" in options.name : 
-      sinbeta = float(par1/1000.0) 
+      sinbeta = float(par1/100.0) 
       m =  float(par2*1.0)  
       fpar1 = sinbeta
       fpar2 = m
-      kt = 1 - 2*math.pow(sinbeta,2)
-      kl = 1 + (2*math.pow(sinbeta,2)*(3 + (4*math.pow(m,2))/(math.pow(v,2)*lamSM)))
-      c2 = -4*math.pow(sinbeta,2)
+      kt = 1.0 - 2*math.pow(sinbeta,2)
+      kl = 1.0 + (2*math.pow(sinbeta,2)*(3 + (4*math.pow(m,2))/(math.pow(v,2)*lamSM)))
+      c2 = -4.0*math.pow(sinbeta,2)
       cg = 0
       c2g = 0
     if "-RealTrip" in options.name : 
-      sinbeta = float(par1/1000.0) 
+      sinbeta = float(par1/100.0) 
       m =  float(par2*1.0)  
       fpar1 = sinbeta
       fpar2 = m
-      kt = 1 
-      kl = 1 + (4*math.pow(sinbeta,2)*(3 + math.pow(m,2)/(math.pow(v,2)*lamSM)))
+      kt = 1.0 
+      kl = 1.0 + (4.0*math.pow(sinbeta,2)*(3.0 + math.pow(m,2)/(math.pow(v,2)*lamSM)))
       c2 = -2*math.pow(sinbeta,2)
       cg = 0
       c2g = 0
-    if "-2HDM" in options.name : 
-      cosbeta = float(par1/100.0) 
-      z6 =  float(par2*1.0)
-      fpar1 = cosbeta
-      fpar2 = z6  
-      tan = math.tan(math.acos(cosbeta))
-      kt =  1 - math.pow(v,2)/math.pow(mH,2)*z6/tan
-      kl = 1 - math.pow(v,2)/math.pow(mH,2)*1.5*z6^2/(2*lamSM)
-      c2 = -(math.pow(v,2)/math.pow(mH,2))*1.5*z6/tan 
+    if "-2HDM" in options.name :    
+      MH = float(par2) 
+      tanbeta =  float(par1)
+      fpar1 = MH
+      fpar2 = tanbeta 
+      if "cab-m1p5" in options.name : cab = -0.15
+      if "cab-1p5" in options.name : cab = 0.15 
+      print cab
+      kl = 1.0 - math.pow(v/MH,2)*1.5*math.pow(-cab*math.sqrt(1.0 - math.pow(cab,2))*(math.pow(MH,2) - math.pow(125,2))/math.pow(v,2),2)/(2*lamSM) 
+      kt = 1.0 - math.pow(v/MH,2)*(-(cab*math.sqrt(1.0 - math.pow(cab,2))*(math.pow(MH,2) - math.pow(125,2))/math.pow(v,2))*math.pow(MH/v,2))/tanbeta 
+      c2 = -math.pow(v/MH,2)*1.5*((-cab*math.sqrt(1.0 - math.pow(cab,2))*(math.pow(MH,2) - math.pow(125,2))/math.pow(v,2))*math.pow(MH/v,2))/tanbeta
       cg = 0
       c2g = 0
     if "-SingExpZ2" in options.name:
@@ -157,26 +178,26 @@ for  par1 in range(ini,ini+par1step,par1step) :
       fpar1 = cosbeta
       fpar2 = linear
       tan2=math.pow(math.tan(math.acos(cosbeta)),2)
-      kt = 1 - tan2/2
-      kl = 1 - 1.5*tan2 + tan2*linear
-      c2 = -tan2/2
+      kt = 1.0 - tan2/2.0
+      kl = 1.0 - 1.5*tan2 + tan2*linear
+      c2 = -tan2/2.0
       cg = 0
       c2g = 0
     if "-SingSpoZ2" in options.name:
       cosbeta = float(par2/100.0) 
-      fpar2 = cosbeta
+      fpar2 = float(cosbeta)
       fpar1 = 1.0
       tan2=math.pow(math.tan(math.acos(cosbeta)),2)
-      kt = 1 - tan2/2
-      kl = 1 - 1.5*tan2
-      c2 = -tan2/2
+      kt = 1.0 - tan2/2.0
+      kl = 1.0 - 1.5*tan2
+      c2 = -tan2/2.0
       cg = 0
       c2g = 0
     if "-VLQT" in options.name:
       ratio = float(par2*0.0001) 
-      fpar2 = ratio
+      fpar2 = float(ratio)
       fpar1 = 1.0
-      kt = 1 - pow(ratio*v,2)/2.0
+      kt = 1.0 - pow(ratio*v,2)/2.0
       kl = 1.0
       c2 = -3*1 +pow(ratio*v,2)/4.0
       cg = 0
